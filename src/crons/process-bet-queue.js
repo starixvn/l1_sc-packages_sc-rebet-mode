@@ -119,7 +119,7 @@ export default class ProcessBetQueue {
             clientSentTime: bet.clientSentTime,
             receivedTime: bet.receivedTime,
         };
-
+        
         Object.entries(bet.oldBet).forEach(([choice, amount]) => (newBetLog[choice] = amount));
 
         if (player.session) {

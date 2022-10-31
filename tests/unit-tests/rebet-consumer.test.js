@@ -1,19 +1,23 @@
-import { helpers } from "sc-common";
-import { stub, stubMongoose } from "jest-micro-auto-stub";
-import RebetConsumer from "../../src/consumers/rebet-consumer";
-import { GameDefinition } from "sc-multiple-games-base";
-import { Core } from "sc-game-base";
 import mongoose from "mongoose";
-import gameSettings from "../../src/game-settings";
 import notices from "../../src/constants/notices";
-import { initGameData, mockPlayer } from "./test-data";
+import { stubMongoose } from "jest-micro-auto-stub";
+import { initGameData, mockPlayer, gameSetting } from "./test-data";
+import RebetConsumer from "../../src/consumers/rebet-consumer";
 
-function initConsumer(definition, gameData, baseEventPublisher, betsRepository) {
-    return new RebetConsumer(definition, gameData, baseEventPublisher, betsRepository);
+function initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer) {
+    return new RebetConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 }
 
-describe("PlaceBetConsumer", () => {
-    const gameSetting = gameSettings.find((x) => x.id === 52);
+describe("RebetConsumer", () => {
+    const placeBetConsumer = {
+        composeBettingTimeValidationCriteria: jest.fn(() => []),
+        getNoticeObj: jest.fn((errorCode, extraData) => {
+            return {
+                errorCode,
+                ...extraData,
+            };
+        }),
+    };
     let gameData;
 
     const payload = {
@@ -22,9 +26,14 @@ describe("PlaceBetConsumer", () => {
 
     const player = mockPlayer({ minBet: 1, maxBet: 3000 });
 
-    const baseEventPublisher = stub(Core.BaseEventPublishers.BaseEventPublisher);
+    const baseEventPublisher = {
+        publishToUser: jest.fn(),
+    };
     const betsRepository = stubMongoose(mongoose.Model);
-    const definition = new GameDefinition(gameSetting);
+    const definition = {
+        ...gameSetting,
+        configName: gameSetting.name.toLowerCase(),
+    };
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -43,7 +52,7 @@ describe("PlaceBetConsumer", () => {
 
         it("should add to ingame", async () => {
             //Arrange
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository);
+            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
             await consumer.consume(player, payload);
@@ -54,7 +63,7 @@ describe("PlaceBetConsumer", () => {
 
         it("should adjust bettracks", async () => {
             //Arrange
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository);
+            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
             await consumer.consume(player, payload);
@@ -72,7 +81,7 @@ describe("PlaceBetConsumer", () => {
         it("should publish invalidBet error to user", async () => {
             //Arrange
             gameData = initGameData(player, definition.durations.placingBets - 2);
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository);
+            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
             await consumer.consume(player, payload);
@@ -80,7 +89,7 @@ describe("PlaceBetConsumer", () => {
             //Assert
             expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
                 endBet: -1,
-                notice: { errorCode: helpers.noticeHelper.invalidBet },
+                notice: { errorCode: notices.invalidBet },
             });
         });
     });
@@ -94,7 +103,7 @@ describe("PlaceBetConsumer", () => {
                     big: 100,
                 },
             };
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository);
+            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
             await consumer.consume(player, payload);
@@ -102,7 +111,7 @@ describe("PlaceBetConsumer", () => {
             //Assert
             expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
                 endBet: -1,
-                notice: { errorCode: helpers.noticeHelper.invalidBet },
+                notice: { errorCode: notices.invalidBet },
             });
         });
     });
@@ -118,7 +127,7 @@ describe("PlaceBetConsumer", () => {
 
             gameData = initGameData(player, definition.durations.placingBets - 2);
 
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository);
+            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
             await consumer.consume(player, payload);
