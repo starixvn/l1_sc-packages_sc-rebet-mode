@@ -6,6 +6,10 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
 
         result.rebet = this.updateRebetGameDataChips(player, bet, rate);
 
+        if (this.gameData.players[player.UID]) {
+            this.gameData.players[player.UID].red = balance.red;
+        }
+
         return result;
     }
 
