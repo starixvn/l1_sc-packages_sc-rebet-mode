@@ -142,7 +142,12 @@ describe("RebetConsumer", () => {
                 const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
                 //Act
-                consumer.validateBetRequest(player, oldBet, false, gameData.roundId);
+                consumer.validateBetRequest(player, {
+                    oldBet,
+                    freeBet: false,
+                    roundId: gameData.roundId,
+                    totalAmount: 2000,
+                });
 
                 //Assert
                 expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
@@ -159,7 +164,12 @@ describe("RebetConsumer", () => {
                 const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
                 //Act
-                const result = consumer.validateBetRequest(player, oldBet, false, gameData.roundId);
+                const result = consumer.validateBetRequest(player, {
+                    oldBet,
+                    freeBet: false,
+                    roundId: gameData.roundId,
+                    totalAmount: 2000,
+                });
 
                 //Assert
                 expect(result).toBeFalse();
@@ -175,7 +185,12 @@ describe("RebetConsumer", () => {
                 const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
                 //Act
-                const result = consumer.validateBetRequest(player, oldBet, false, gameData.roundId);
+                const result = consumer.validateBetRequest(player, {
+                    oldBet,
+                    freeBet: false,
+                    roundId: gameData.roundId,
+                    totalAmount: 10,
+                });
 
                 //Assert
                 expect(result).toBeTrue();

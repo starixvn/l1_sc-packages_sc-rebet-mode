@@ -30,14 +30,19 @@ export default class RebetConsumer {
         return false;
     }
 
-    composeValidationCriteria(player, oldBet, freeBet, roundId) {
-        const bettingTimeValidationCriteria = this.placeBetConsumer.composeBettingTimeValidationCriteria(roundId);
-        const betAmountValidationCriteria = this.composeBetAmountValidationCriteria(player, oldBet, freeBet);
+    composeValidationCriteria(player, payload) {
+        const bettingTimeValidationCriteria = this.placeBetConsumer.composeBettingTimeValidationCriteria(payload.roundId);
+        const betAmountValidationCriteria = this.composeBetAmountValidationCriteria(
+            player,
+            payload.oldBet,
+            payload.freeBet,
+            payload.totalAmount
+        );
 
         return bettingTimeValidationCriteria.concat(betAmountValidationCriteria);
     }
 
-    composeBetAmountValidationCriteria(player, oldBet, freeBet) {
+    composeBetAmountValidationCriteria(player, oldBet, freeBet, totalAmount) {
         const settings = this.gameData.currencyGroupGames.find((x) => x.groupId.toString() === player.session.currencyGroupId);
         const configs = this.gameData.gameConfigs;
         const { betTracks } = this.gameData.ingame[player.profile.name] || { betTracks: {} };
@@ -62,14 +67,14 @@ export default class RebetConsumer {
                 notice: this.placeBetConsumer.getNoticeObj(notices.minBet, { minBet }),
             },
             {
-                failure: oldBet.totalAmount > maxBet,
+                failure: totalAmount > maxBet,
                 notice: this.placeBetConsumer.getNoticeObj(notices.maxBet, { maxBet }),
             },
         ];
     }
 
-    validateBetRequest(player, oldBet, freeBet, roundId) {
-        const criteria = this.composeValidationCriteria(player, oldBet, freeBet, roundId);
+    validateBetRequest(player, payload) {
+        const criteria = this.composeValidationCriteria(player, payload);
         const failedCriterion = criteria.find((criterion) => criterion.failure);
 
         if (failedCriterion) {
@@ -99,7 +104,7 @@ export default class RebetConsumer {
             oldBet: this.convertOldBet(oldBet),
         });
 
-        if (!this.validateBetRequest(player, payload.oldBet, payload.freeBet, payload.roundId)) {
+        if (!this.validateBetRequest(player, payload)) {
             return;
         }
 

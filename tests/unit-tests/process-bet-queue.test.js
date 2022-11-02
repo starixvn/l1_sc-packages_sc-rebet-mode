@@ -45,6 +45,9 @@ describe("ProcessBetQueue", () => {
                 gameData.chips[rate][betChoice][amount] = (gameData.chips[rate][betChoice][amount] ?? 0) + 1;
             }
         },
+        adjustTotalBets: jest.fn(),
+        adjustOwnBets: jest.fn(),
+        decreaseBetTracks: jest.fn(),
     };
     const betsRepository = stubMongoose(mongoose.Model);
     const betLogsRepository = stubMongoose(mongoose.Model);
@@ -76,6 +79,28 @@ describe("ProcessBetQueue", () => {
 
                 //Assert
                 expect(betLogsRepository.create).toBeCalled();
+            });
+        });
+    });
+
+    describe("upsertBet", () => {
+        describe("re bet", () => {
+            it("should call upsertBet", async () => {
+                //Arrange
+                const processBetQueue = initBetQueue(
+                    definition,
+                    gameData,
+                    placeBetPublisher,
+                    betsRepository,
+                    betLogsRepository,
+                    baseProcessBetQueue
+                );
+
+                //Act
+                await processBetQueue.upsertBet(player, 1, { rebet: true, oldBet: { big: 100 } }, 1);
+
+                //Assert
+                expect(betsRepository.updateOne).toBeCalled();
             });
         });
     });
@@ -122,6 +147,89 @@ describe("ProcessBetQueue", () => {
                 //Assert
                 expect(gameData.chips).toEqual({ 1: { big: { 100: 1 }, odd: { 100: 2 } } });
             });
+        });
+    });
+
+    describe("adjustTotalBets", () => {
+        it("should call baseProcessBetQueue.adjustTotalBets", () => {
+            //Arrange
+            const processBetQueue = initBetQueue(
+                definition,
+                gameData,
+                placeBetPublisher,
+                betsRepository,
+                betLogsRepository,
+                baseProcessBetQueue
+            );
+
+            //Act
+            processBetQueue.adjustTotalBets(
+                player,
+                {
+                    oldBet: {
+                        big: 100,
+                        odd: 200,
+                    },
+                },
+                1
+            );
+
+            //Assert
+            expect(baseProcessBetQueue.adjustTotalBets).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe("adjustOwnBets", () => {
+        it("should call baseProcessBetQueue.adjustOwnBets", () => {
+            //Arrange
+            const processBetQueue = initBetQueue(
+                definition,
+                gameData,
+                placeBetPublisher,
+                betsRepository,
+                betLogsRepository,
+                baseProcessBetQueue
+            );
+
+            //Act
+            processBetQueue.adjustOwnBets(
+                player,
+                {
+                    oldBet: {
+                        big: 100,
+                        odd: 200,
+                    },
+                },
+                1
+            );
+
+            //Assert
+            expect(baseProcessBetQueue.adjustOwnBets).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe("decreaseBetTracks", () => {
+        it("should call baseProcessBetQueue.decreaseBetTracks", () => {
+            //Arrange
+            const processBetQueue = initBetQueue(
+                definition,
+                gameData,
+                placeBetPublisher,
+                betsRepository,
+                betLogsRepository,
+                baseProcessBetQueue
+            );
+
+            //Act
+            processBetQueue.decreaseBetTracks(player, {
+                oldBet: {
+                    big: 100,
+                    odd: 200,
+                },
+            });
+
+            //Assert
+            expect(baseProcessBetQueue.decreaseBetTracks).toHaveBeenCalledTimes(2);
         });
     });
 });
