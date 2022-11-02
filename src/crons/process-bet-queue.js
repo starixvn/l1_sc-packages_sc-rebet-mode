@@ -65,7 +65,7 @@ export default class ProcessBetQueue {
         if (apiResult.isOk) {
             await this.handleSuccessBet(player, response, betInfo.gameRoundId, payload);
         } else {
-            this.baseProcessBetQueue.handleFailedBet(player, response, payload);
+            this.handleFailedBet(player, response, payload);
 
             if (
                 (player.profile.minBet !== response.apiError?.minBet || player.profile.maxBet !== response.apiError?.maxBet) &&
@@ -78,6 +78,18 @@ export default class ProcessBetQueue {
 
         const totalProcessedTime = (new Date() - payload.receivedTime) / 1000;
         this.baseMetrics.collectBetProcessedTime(totalProcessedTime);
+    }
+
+    handleFailedBet(player, notice, bet) {
+        this.decreaseBetTracks(player.profile.name, bet);
+
+        if (notice.apiError) {
+            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, apiError: notice.apiError });
+        } else if (notice.kickedOut) {
+            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, kickedOut: notice.kickedOut });
+        } else {
+            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, notice });
+        }
     }
 
     decreaseBetTracks(playerName, bet) {
@@ -119,7 +131,7 @@ export default class ProcessBetQueue {
             clientSentTime: bet.clientSentTime,
             receivedTime: bet.receivedTime,
         };
-        
+
         Object.entries(bet.oldBet).forEach(([choice, amount]) => (newBetLog[choice] = amount));
 
         if (player.session) {
