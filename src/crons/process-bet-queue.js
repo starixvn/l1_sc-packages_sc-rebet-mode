@@ -206,6 +206,7 @@ export default class ProcessBetQueue {
             endBet: amount,
             freeBet,
             user: { ...balance },
+            rebet: bet.oldBet,
         };
 
         return result;

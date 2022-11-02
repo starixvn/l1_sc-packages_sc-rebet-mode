@@ -5,7 +5,7 @@ import { TableProcessBetQueue, ProcessBetQueue } from "./crons";
 
 export default class RebetContainerRegistry {
     register(baseSocketRouter, baseProcessBetQueue) {
-        const registers = {
+        return {
             rebetConsumer: asClass(RebetConsumer).singleton(),
             socketRouter: asClass(SocketRouter).proxy(),
             baseSocketRouter: asClass(baseSocketRouter).proxy(),
@@ -13,12 +13,10 @@ export default class RebetContainerRegistry {
             processBetQueue: asClass(ProcessBetQueue).singleton().proxy(),
             baseProcessBetQueue: asClass(baseProcessBetQueue).singleton().proxy(),
         };
-
-        return registers;
     }
 
     registerTableGame(baseSocketRouter, baseProcessBetQueue) {
-        const registers = {
+        return {
             rebetConsumer: asClass(RebetConsumer).singleton(),
             socketRouter: asClass(SocketRouter).proxy(),
             baseSocketRouter: asClass(baseSocketRouter).proxy(),
@@ -26,7 +24,5 @@ export default class RebetContainerRegistry {
             processBetQueue: asClass(TableProcessBetQueue).singleton().proxy(),
             baseProcessBetQueue: asClass(baseProcessBetQueue).singleton().proxy(),
         };
-
-        return registers;
     }
 }
