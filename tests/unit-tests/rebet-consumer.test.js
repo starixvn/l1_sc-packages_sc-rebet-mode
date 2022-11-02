@@ -39,88 +39,159 @@ describe("RebetConsumer", () => {
         jest.clearAllMocks();
     });
 
-    describe("when bet is valid", () => {
-        const oldBet = {
-            big: 1,
-            odd: 10,
-            totalAmount: 11,
-        };
+    describe("consume", () => {
+        describe("when bet is valid", () => {
+            const oldBet = {
+                big: 1,
+                odd: 10,
+                totalAmount: 11,
+            };
 
-        betsRepository.findOne().lean().exec.mockReturnValue(oldBet);
+            betsRepository.findOne().lean().exec.mockReturnValue(oldBet);
+            gameData = initGameData(player, definition.durations.placingBets - 2);
+            gameData.roundId = 100;
+
+            it("should add to ingame", async () => {
+                //Arrange
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                await consumer.consume(player, payload);
+
+                //Assert
+                expect(gameData.ingame[player.profile.name]).not.toBeUndefined();
+            });
+
+            it("should adjust bettracks", async () => {
+                //Arrange
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                await consumer.consume(player, payload);
+
+                //Assert
+                expect(gameData.ingame[player.profile.name].betTracks).toStrictEqual({ big: 1, odd: 10 });
+            });
+
+            it("should add to betQueue", async () => {
+                //Arrange
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                await consumer.consume(player, payload);
+
+                //Assert
+                expect(gameData.ingame[player.profile.name].betQueue).not.toBeEmpty();
+            });
+
+            afterAll(() => {
+                betsRepository.findOne().lean().exec.mockReset();
+            });
+        });
+
+        describe("when bet in previous round doesnt exist", () => {
+            it("should publish invalidBet error to user", async () => {
+                //Arrange
+                gameData = initGameData(player, definition.durations.placingBets - 2);
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                await consumer.consume(player, payload);
+
+                //Assert
+                expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
+                    endBet: -1,
+                    notice: { errorCode: notices.invalidBet },
+                });
+            });
+        });
+
+        describe("when player has already placed bet", () => {
+            it("should publish invalidBet error to user", async () => {
+                //Arrange
+                gameData = initGameData(player, definition.durations.placingBets - 2);
+                gameData.ingame[player.profile.name] = {
+                    betTracks: {
+                        big: 100,
+                    },
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                await consumer.consume(player, payload);
+
+                //Assert
+                expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
+                    endBet: -1,
+                    notice: { errorCode: notices.invalidBet },
+                });
+            });
+        });
+    });
+
+    describe("validateBetRequest", () => {
         gameData = initGameData(player, definition.durations.placingBets - 2);
         gameData.roundId = 100;
 
-        it("should add to ingame", async () => {
-            //Arrange
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+        describe("when old bet has amount on choice that exceeds current max bet", () => {
+            it("should publish maxBetOfAnyChoiceReached error to user", () => {
+                //Arrange
+                const oldBet = {
+                    even: 2000,
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
-            //Act
-            await consumer.consume(player, payload);
+                //Act
+                consumer.validateBetRequest(player, oldBet, false, gameData.roundId);
 
-            //Assert
-            expect(gameData.ingame[player.profile.name]).not.toBeUndefined();
+                //Assert
+                expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
+                    endBet: -1,
+                    notice: { errorCode: notices.maxBetOfAnyChoiceReached },
+                });
+            });
+
+            it("should return false", () => {
+                //Arrange
+                const oldBet = {
+                    even: 2000,
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.validateBetRequest(player, oldBet, false, gameData.roundId);
+
+                //Assert
+                expect(result).toBeFalse();
+            });
         });
 
-        it("should adjust bettracks", async () => {
-            //Arrange
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+        describe("when bet is valid", () => {
+            it("should return true", () => {
+                //Arrange
+                const oldBet = {
+                    even: 10,
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
-            //Act
-            await consumer.consume(player, payload);
+                //Act
+                const result = consumer.validateBetRequest(player, oldBet, false, gameData.roundId);
 
-            //Assert
-            expect(gameData.ingame[player.profile.name].betTracks).toStrictEqual({ big: 1, odd: 10 });
-        });
-
-        afterAll(() => {
-            betsRepository.findOne().lean().exec.mockReset();
-        });
-    });
-
-    describe("when bet in previous round doesnt exist", () => {
-        it("should publish invalidBet error to user", async () => {
-            //Arrange
-            gameData = initGameData(player, definition.durations.placingBets - 2);
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
-
-            //Act
-            await consumer.consume(player, payload);
-
-            //Assert
-            expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
-                endBet: -1,
-                notice: { errorCode: notices.invalidBet },
+                //Assert
+                expect(result).toBeTrue();
             });
         });
     });
 
-    describe("when player has already placed bet", () => {
-        it("should publish invalidBet error to user", async () => {
-            //Arrange
-            gameData = initGameData(player, definition.durations.placingBets - 2);
-            gameData.ingame[player.profile.name] = {
-                betTracks: {
-                    big: 100,
-                },
-            };
-            const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
-
-            //Act
-            await consumer.consume(player, payload);
-
-            //Assert
-            expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
-                endBet: -1,
-                notice: { errorCode: notices.invalidBet },
-            });
-        });
-    });
-
-    describe("when old bet has amount on choice that exceeds current max bet", () => {
-        it("should publish maxBetOfAnyChoiceReached error to user", async () => {
+    describe("convertOldBet", () => {
+        it("should return object contains choices with amount >0", () => {
             //Arrange
             const oldBet = {
                 even: 2000,
+                big: 200,
+                small: 0,
+                odd: 0,
+                earth: 0,
                 totalAmount: 2000,
             };
             betsRepository.findOne().lean().exec.mockReturnValueOnce(oldBet);
@@ -130,13 +201,10 @@ describe("RebetConsumer", () => {
             const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
-            await consumer.consume(player, payload);
+            const result = consumer.convertOldBet(oldBet);
 
             //Assert
-            expect(baseEventPublisher.publishToUser).toBeCalledWith(player.UID, {
-                endBet: -1,
-                notice: { errorCode: notices.maxBetOfAnyChoiceReached },
-            });
+            expect(result).toStrictEqual({ even: 2000, big: 200 });
         });
     });
 });

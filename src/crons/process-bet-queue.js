@@ -201,14 +201,12 @@ export default class ProcessBetQueue {
         const { amount, freeBet } = bet;
         const { ownBets } = this.gameData.ingame[player.profile.name] || { ownBets: {} };
 
-        const result = {
+        return {
             ownBets,
             endBet: amount,
             freeBet,
             user: { ...balance },
             rebet: bet.oldBet,
         };
-
-        return result;
     }
 }
