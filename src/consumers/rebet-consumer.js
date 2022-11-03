@@ -9,7 +9,7 @@ export default class RebetConsumer {
         this.placeBetConsumer = placeBetConsumer;
     }
 
-    async getOldBet(player) {
+    async getLastBet(player) {
         return this.betsRepository
             .findOne({
                 roundId: this.gameData.roundId - 1,
@@ -34,7 +34,7 @@ export default class RebetConsumer {
         const bettingTimeValidationCriteria = this.placeBetConsumer.composeBettingTimeValidationCriteria(payload.roundId);
         const betAmountValidationCriteria = this.composeBetAmountValidationCriteria(
             player,
-            payload.oldBet,
+            payload.lastBet,
             payload.freeBet,
             payload.totalAmount
         );
@@ -42,13 +42,13 @@ export default class RebetConsumer {
         return bettingTimeValidationCriteria.concat(betAmountValidationCriteria);
     }
 
-    composeBetAmountValidationCriteria(player, oldBet, freeBet, totalAmount) {
+    composeBetAmountValidationCriteria(player, lastBet, freeBet, totalAmount) {
         const settings = this.gameData.currencyGroupGames.find((x) => x.groupId.toString() === player.session.currencyGroupId);
         const configs = this.gameData.gameConfigs;
         const { betTracks } = this.gameData.ingame[player.profile.name] || { betTracks: {} };
         const minBet = Math.max(player.profile.minBet, settings.minBet);
         const maxBet = Math.min(player.profile.maxBet, settings.maxBet);
-        const entries = Object.entries(oldBet);
+        const entries = Object.entries(lastBet);
 
         return [
             {
@@ -87,21 +87,21 @@ export default class RebetConsumer {
     }
 
     async consume(player, payload) {
-        const oldBet = await this.getOldBet(player);
+        const lastBet = await this.getLastBet(player);
 
-        if (!oldBet || (await this.existBet(player))) {
+        if (!lastBet || (await this.existBet(player))) {
             this.publisher.publishToUser(player.UID, { endBet: -1, notice: { errorCode: notices.invalidBet } });
             return;
         }
 
         Object.assign(payload, {
-            amount: oldBet.totalAmount,
+            amount: lastBet.totalAmount,
             freeBet: payload.freeBet ?? false,
             roundId: this.gameData.roundId,
             mode: payload.m ?? this.DisplayMode.Landscape,
             receivedTime: new Date(),
             rebet: true,
-            oldBet: this.convertOldBet(oldBet),
+            lastBet: this.convertlastBet(lastBet),
         });
 
         if (!this.validateBetRequest(player, payload)) {
@@ -124,26 +124,26 @@ export default class RebetConsumer {
             this.gameData.ingame[name] = newPlayer;
         }
 
-        this.adjustBetTracks(player.profile.name, payload.oldBet);
+        this.adjustBetTracks(player.profile.name, payload.lastBet);
         this.gameData.ingame[name].betQueue.push({ player, payload });
     }
 
-    convertOldBet(oldBet) {
+    convertlastBet(lastBet) {
         const result = {};
 
         this.definition.choices.forEach((choice) => {
-            if (oldBet[choice] > 0) {
-                result[choice] = oldBet[choice];
+            if (lastBet[choice] > 0) {
+                result[choice] = lastBet[choice];
             }
         });
 
         return result;
     }
 
-    adjustBetTracks(playerName, oldBet) {
+    adjustBetTracks(playerName, lastBet) {
         const playerInGame = this.gameData.ingame[playerName];
 
-        Object.entries(oldBet).forEach(
+        Object.entries(lastBet).forEach(
             ([choice, amount]) => (playerInGame.betTracks[choice] = (playerInGame.betTracks[choice] ?? 0) + amount)
         );
     }

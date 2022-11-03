@@ -41,13 +41,13 @@ describe("RebetConsumer", () => {
 
     describe("consume", () => {
         describe("when bet is valid", () => {
-            const oldBet = {
+            const lastBet = {
                 big: 1,
                 odd: 10,
                 totalAmount: 11,
             };
 
-            betsRepository.findOne().lean().exec.mockReturnValue(oldBet);
+            betsRepository.findOne().lean().exec.mockReturnValue(lastBet);
             gameData = initGameData(player, definition.durations.placingBets - 2);
             gameData.roundId = 100;
 
@@ -136,14 +136,14 @@ describe("RebetConsumer", () => {
         describe("when old bet has amount on choice that exceeds current max bet", () => {
             it("should publish maxBetOfAnyChoiceReached error to user", () => {
                 //Arrange
-                const oldBet = {
+                const lastBet = {
                     even: 2000,
                 };
                 const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
                 //Act
                 consumer.validateBetRequest(player, {
-                    oldBet,
+                    lastBet,
                     freeBet: false,
                     roundId: gameData.roundId,
                     totalAmount: 2000,
@@ -158,14 +158,14 @@ describe("RebetConsumer", () => {
 
             it("should return false", () => {
                 //Arrange
-                const oldBet = {
+                const lastBet = {
                     even: 2000,
                 };
                 const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
                 //Act
                 const result = consumer.validateBetRequest(player, {
-                    oldBet,
+                    lastBet,
                     freeBet: false,
                     roundId: gameData.roundId,
                     totalAmount: 2000,
@@ -179,14 +179,14 @@ describe("RebetConsumer", () => {
         describe("when bet is valid", () => {
             it("should return true", () => {
                 //Arrange
-                const oldBet = {
+                const lastBet = {
                     even: 10,
                 };
                 const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
                 //Act
                 const result = consumer.validateBetRequest(player, {
-                    oldBet,
+                    lastBet,
                     freeBet: false,
                     roundId: gameData.roundId,
                     totalAmount: 10,
@@ -198,10 +198,10 @@ describe("RebetConsumer", () => {
         });
     });
 
-    describe("convertOldBet", () => {
+    describe("convertlastBet", () => {
         it("should return object contains choices with amount >0", () => {
             //Arrange
-            const oldBet = {
+            const lastBet = {
                 even: 2000,
                 big: 200,
                 small: 0,
@@ -209,14 +209,14 @@ describe("RebetConsumer", () => {
                 earth: 0,
                 totalAmount: 2000,
             };
-            betsRepository.findOne().lean().exec.mockReturnValueOnce(oldBet);
+            betsRepository.findOne().lean().exec.mockReturnValueOnce(lastBet);
 
             gameData = initGameData(player, definition.durations.placingBets - 2);
 
             const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
-            const result = consumer.convertOldBet(oldBet);
+            const result = consumer.convertlastBet(lastBet);
 
             //Assert
             expect(result).toStrictEqual({ even: 2000, big: 200 });

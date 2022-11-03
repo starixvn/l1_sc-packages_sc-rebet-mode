@@ -75,7 +75,7 @@ describe("ProcessBetQueue", () => {
                 );
 
                 //Act
-                await processBetQueue.insertBetLog(player, 1, { rebet: true, oldBet: { big: 100 } }, 1);
+                await processBetQueue.insertBetLog(player, 1, { rebet: true, lastBet: { big: 100 } }, 1);
 
                 //Assert
                 expect(betLogsRepository.create).toBeCalled();
@@ -97,7 +97,7 @@ describe("ProcessBetQueue", () => {
                 );
 
                 //Act
-                await processBetQueue.upsertBet(player, 1, { rebet: true, oldBet: { big: 100 } }, 1);
+                await processBetQueue.upsertBet(player, 1, { rebet: true, lastBet: { big: 100 } }, 1);
 
                 //Assert
                 expect(betsRepository.updateOne).toBeCalled();
@@ -122,7 +122,7 @@ describe("ProcessBetQueue", () => {
                 const result = processBetQueue.generatePlacingBetResult(
                     player,
                     { red: 3000 },
-                    { rebet: true, oldBet: { big: 100, odd: 200 } },
+                    { rebet: true, lastBet: { big: 100, odd: 200 } },
                     1
                 );
 
@@ -142,7 +142,7 @@ describe("ProcessBetQueue", () => {
                 );
 
                 //Act
-                processBetQueue.generatePlacingBetResult(player, { red: 3000 }, { rebet: true, oldBet: { big: 100, odd: 200 } }, 1);
+                processBetQueue.generatePlacingBetResult(player, { red: 3000 }, { rebet: true, lastBet: { big: 100, odd: 200 } }, 1);
 
                 //Assert
                 expect(gameData.chips).toEqual({ 1: { big: { 100: 1 }, odd: { 100: 2 } } });
@@ -166,7 +166,7 @@ describe("ProcessBetQueue", () => {
             processBetQueue.adjustTotalBets(
                 player,
                 {
-                    oldBet: {
+                    lastBet: {
                         big: 100,
                         odd: 200,
                     },
@@ -195,7 +195,7 @@ describe("ProcessBetQueue", () => {
             processBetQueue.adjustOwnBets(
                 player,
                 {
-                    oldBet: {
+                    lastBet: {
                         big: 100,
                         odd: 200,
                     },
@@ -222,7 +222,7 @@ describe("ProcessBetQueue", () => {
 
             //Act
             processBetQueue.decreaseBetTracks(player, {
-                oldBet: {
+                lastBet: {
                     big: 100,
                     odd: 200,
                 },

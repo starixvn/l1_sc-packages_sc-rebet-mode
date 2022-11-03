@@ -21,7 +21,7 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
             .chips.map((x) => parseInt(x))
             .sort((num1, num2) => num2 - num1);
 
-        for (const [betChoice, betAmount] of Object.entries(bet.oldBet)) {
+        for (const [betChoice, betAmount] of Object.entries(bet.lastBet)) {
             rebetChips[betChoice] = {};
             let amount = betAmount;
 

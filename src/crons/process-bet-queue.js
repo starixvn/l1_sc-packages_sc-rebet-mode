@@ -93,8 +93,8 @@ export default class ProcessBetQueue {
     }
 
     decreaseBetTracks(playerName, bet) {
-        const { oldBet } = bet;
-        Object.entries(oldBet).forEach(([betChoice, amount]) =>
+        const { lastBet } = bet;
+        Object.entries(lastBet).forEach(([betChoice, amount]) =>
             this.baseProcessBetQueue.decreaseBetTracks(playerName, { betChoice, amount })
         );
     }
@@ -132,7 +132,7 @@ export default class ProcessBetQueue {
             receivedTime: bet.receivedTime,
         };
 
-        Object.entries(bet.oldBet).forEach(([choice, amount]) => (newBetLog[choice] = amount));
+        Object.entries(bet.lastBet).forEach(([choice, amount]) => (newBetLog[choice] = amount));
 
         if (player.session) {
             newBetLog.siteId = player.session.siteId;
@@ -160,7 +160,7 @@ export default class ProcessBetQueue {
             totalAmount: bet.amount,
         };
 
-        Object.entries(bet.oldBet).forEach(([choice, amount]) => (existingBetIncrement[choice] = amount));
+        Object.entries(bet.lastBet).forEach(([choice, amount]) => (existingBetIncrement[choice] = amount));
 
         if (player.session) {
             newBet.siteId = player.session.siteId;
@@ -179,16 +179,16 @@ export default class ProcessBetQueue {
     }
 
     adjustTotalBets(player, bet, rate) {
-        const { oldBet } = bet;
-        Object.entries(oldBet).forEach(([betChoice, amount]) =>
+        const { lastBet } = bet;
+        Object.entries(lastBet).forEach(([betChoice, amount]) =>
             this.baseProcessBetQueue.adjustTotalBets(player, { betChoice, amount }, rate)
         );
     }
 
     adjustOwnBets(playerName, bet) {
-        const { oldBet } = bet;
+        const { lastBet } = bet;
 
-        Object.entries(oldBet).forEach(([betChoice, amount]) => this.baseProcessBetQueue.adjustOwnBets(playerName, { betChoice, amount }));
+        Object.entries(lastBet).forEach(([betChoice, amount]) => this.baseProcessBetQueue.adjustOwnBets(playerName, { betChoice, amount }));
     }
 
     notifyPlacingBetResult(player, balance, bet, rate) {
@@ -206,7 +206,7 @@ export default class ProcessBetQueue {
             endBet: amount,
             freeBet,
             user: { ...balance },
-            rebet: bet.oldBet,
+            rebet: bet.lastBet,
         };
     }
 }
