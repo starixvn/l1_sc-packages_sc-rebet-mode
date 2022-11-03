@@ -10,6 +10,7 @@ export default class ProcessBetQueue {
         logService,
         baseMetrics,
         baseProcessBetQueue,
+        rebetProcessor,
     }) {
         this.definition = definition;
         this.gameData = gameData;
@@ -19,6 +20,7 @@ export default class ProcessBetQueue {
         this.baseMetrics = baseMetrics;
         this.logService = logService;
         this.baseProcessBetQueue = baseProcessBetQueue;
+        this.rebetProcessor = rebetProcessor;
     }
 
     start() {
@@ -52,6 +54,7 @@ export default class ProcessBetQueue {
         }
     }
 
+    // NO CHANGE so we could remove this
     async proceedBet(player, payload) {
         const betInfo = this.baseProcessBetQueue.formatApiBetInfo(payload);
 
@@ -80,6 +83,7 @@ export default class ProcessBetQueue {
         this.baseMetrics.collectBetProcessedTime(totalProcessedTime);
     }
 
+    // NO CHANGE so we could remove this
     handleFailedBet(player, notice, bet) {
         this.decreaseBetTracks(player.profile.name, bet);
 
@@ -92,13 +96,15 @@ export default class ProcessBetQueue {
         }
     }
 
+    // TODO bring this to game service
     decreaseBetTracks(playerName, bet) {
-        const { lastBet } = bet;
-        Object.entries(lastBet).forEach(([betChoice, amount]) =>
+        const { oldBet } = bet;
+        Object.entries(oldBet).forEach(([betChoice, amount]) =>
             this.baseProcessBetQueue.decreaseBetTracks(playerName, { betChoice, amount })
         );
     }
 
+    // NO CHANGE so we could remove this
     async handleSuccessBet(player, balance, roundId, bet) {
         const rate = this.baseProcessBetQueue.calculateCurrencyRate(player.session);
 
@@ -121,6 +127,7 @@ export default class ProcessBetQueue {
         }
     }
 
+    // TODO bring this to game service
     async insertBetLog(player, roundId, bet, rate) {
         const newBetLog = {
             uid: player.UID,
@@ -132,8 +139,6 @@ export default class ProcessBetQueue {
             receivedTime: bet.receivedTime,
         };
 
-        Object.entries(bet.lastBet).forEach(([choice, amount]) => (newBetLog[choice] = amount));
-
         if (player.session) {
             newBetLog.siteId = player.session.siteId;
             newBetLog.currency = player.session.currencyName;
@@ -142,9 +147,13 @@ export default class ProcessBetQueue {
             newBetLog.playerId = player.session.playerId;
         }
 
-        await this.betLogsRepository.create(newBetLog);
+        // only this for rebet
+        const processedBetLog = this.rebetProcessor.assignAmountToChoice(newBetLog, bet.oldBet);
+
+        await this.betLogsRepository.create(processedBetLog);
     }
 
+    // TODO bring this to game service
     async upsertBet(player, roundId, bet, rate) {
         const configs = this.gameData.gameConfigs;
         const newBet = {
@@ -160,8 +169,6 @@ export default class ProcessBetQueue {
             totalAmount: bet.amount,
         };
 
-        Object.entries(bet.lastBet).forEach(([choice, amount]) => (existingBetIncrement[choice] = amount));
-
         if (player.session) {
             newBet.siteId = player.session.siteId;
             newBet.currency = player.session.currencyName;
@@ -171,32 +178,39 @@ export default class ProcessBetQueue {
             newBet.playerId = player.session.playerId;
         }
 
+        // only this for rebet
+        const processedBetLog = this.rebetProcessor.assignAmountToChoice(newBet, bet.oldBet);
+
         await this.betsRepository.updateOne(
             existingBetFilter,
-            { $inc: existingBetIncrement, $setOnInsert: newBet },
+            { $inc: existingBetIncrement, $setOnInsert: processedBetLog },
             { upsert: true, setDefaultsOnInsert: true }
         );
     }
 
+    // TODO bring this to game service
     adjustTotalBets(player, bet, rate) {
-        const { lastBet } = bet;
-        Object.entries(lastBet).forEach(([betChoice, amount]) =>
+        const { oldBet } = bet;
+        Object.entries(oldBet).forEach(([betChoice, amount]) =>
             this.baseProcessBetQueue.adjustTotalBets(player, { betChoice, amount }, rate)
         );
     }
 
+    // TODO bring this to game service
     adjustOwnBets(playerName, bet) {
-        const { lastBet } = bet;
+        const { oldBet } = bet;
 
-        Object.entries(lastBet).forEach(([betChoice, amount]) => this.baseProcessBetQueue.adjustOwnBets(playerName, { betChoice, amount }));
+        Object.entries(oldBet).forEach(([betChoice, amount]) => this.baseProcessBetQueue.adjustOwnBets(playerName, { betChoice, amount }));
     }
 
+    // NO CHANGE so we could remove this
     notifyPlacingBetResult(player, balance, bet, rate) {
         const result = this.generatePlacingBetResult(player, balance, bet, rate);
 
         this.placeBetPublisher.publishSuccessBet(player.UID, result, rate);
     }
 
+    // TODO bring this to game service
     generatePlacingBetResult(player, balance, bet, rate) {
         const { amount, freeBet } = bet;
         const { ownBets } = this.gameData.ingame[player.profile.name] || { ownBets: {} };
@@ -206,7 +220,9 @@ export default class ProcessBetQueue {
             endBet: amount,
             freeBet,
             user: { ...balance },
-            rebet: bet.lastBet,
+            rebet: bet.oldBet,
         };
+
+        //TODO call super then reassign rebet
     }
 }

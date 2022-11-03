@@ -1,9 +1,10 @@
 import { stub, stubMongoose } from "jest-micro-auto-stub";
 import mongoose from "mongoose";
-import { TableProcessBetQueue } from "../../src/crons";
-import { gameSetting, initGameData, mockPlayer } from "./test-data";
+import { TableProcessBetQueue } from "../../../src/crons";
+import { gameSetting, initGameData, mockPlayer } from "../test-data";
+import ReBetProcessor from "../../../src/crons/rebet-processor";
 
-function initBetQueue(definition, gameData, placeBetPublisher, betsRepository, betLogsRepository, baseProcessBetQueue) {
+function initBetQueue(definition, gameData, placeBetPublisher, betsRepository, betLogsRepository, baseProcessBetQueue, rebetProcessor) {
     return new TableProcessBetQueue({
         definition,
         gameData,
@@ -11,6 +12,7 @@ function initBetQueue(definition, gameData, placeBetPublisher, betsRepository, b
         betsRepository,
         betLogsRepository,
         baseProcessBetQueue,
+        rebetProcessor,
     });
 }
 
@@ -55,6 +57,7 @@ describe("ProcessBetQueue", () => {
         ...gameSetting,
         configName: gameSetting.name.toLowerCase(),
     };
+    const rebetProcessor = new ReBetProcessor();
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -71,7 +74,8 @@ describe("ProcessBetQueue", () => {
                     placeBetPublisher,
                     betsRepository,
                     betLogsRepository,
-                    baseProcessBetQueue
+                    baseProcessBetQueue,
+                    rebetProcessor
                 );
 
                 //Act
@@ -115,7 +119,8 @@ describe("ProcessBetQueue", () => {
                     placeBetPublisher,
                     betsRepository,
                     betLogsRepository,
-                    baseProcessBetQueue
+                    baseProcessBetQueue,
+                    rebetProcessor
                 );
 
                 //Act
@@ -138,7 +143,8 @@ describe("ProcessBetQueue", () => {
                     placeBetPublisher,
                     betsRepository,
                     betLogsRepository,
-                    baseProcessBetQueue
+                    baseProcessBetQueue,
+                    rebetProcessor
                 );
 
                 //Act

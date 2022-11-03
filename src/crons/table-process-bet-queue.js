@@ -13,23 +13,19 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
         return result;
     }
 
+    // TODO move this function to game service
     updateRebetGameDataChips(player, bet, rate) {
-        const rebetChips = {};
+        const { chips } = this.gameData.currencyGroupGames.find((x) => x.groupId.toString() === player.session.currencyGroupId);
 
-        const chips = this.gameData.currencyGroupGames
-            .find((x) => x.groupId.toString() === player.session.currencyGroupId)
-            .chips.map((x) => parseInt(x))
-            .sort((num1, num2) => num2 - num1);
+        const rebetChips = this.rebetProcessor.convertAmountToChipList(bet.oldBet, chips);
 
-        for (const [betChoice, betAmount] of Object.entries(bet.lastBet)) {
-            rebetChips[betChoice] = {};
-            let amount = betAmount;
-
-            while (amount > 0) {
-                const chip = chips.find((chip) => chip <= amount);
-                amount -= chip;
-                this.baseProcessBetQueue.updateGameDataChips({ betChoice, amount: chip }, rate);
-                rebetChips[betChoice][chip] = (rebetChips[betChoice][chip] ?? 0) + 1;
+        for (const betChoice of Object.keys(rebetChips)) {
+            const chipList = rebetChips[betChoice];
+            //{ 1000: 1, 100: 2 } }
+            for (const chipAmount of Object.keys(chipList)) {
+                for (let index = 0; index < chipList[chipAmount]; index++) {
+                    this.baseProcessBetQueue.updateGameDataChips({ betChoice, amount: chipAmount }, rate);
+                }
             }
         }
 

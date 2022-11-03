@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import notices from "../../src/constants/notices";
+import notices from "../../../src/constants/notices";
 import { stubMongoose } from "jest-micro-auto-stub";
-import { initGameData, mockPlayer, gameSetting } from "./test-data";
-import RebetConsumer from "../../src/consumers/rebet-consumer";
+import { initGameData, mockPlayer, gameSetting } from "../test-data";
+import RebetConsumer from "../../../src/consumers/rebet-consumer";
 
 function initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer) {
     return new RebetConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
