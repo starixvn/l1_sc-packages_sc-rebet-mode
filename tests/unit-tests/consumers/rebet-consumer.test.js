@@ -285,4 +285,70 @@ describe("RebetConsumer", () => {
             expect(result).toStrictEqual({ even: 2000, big: 200 });
         });
     });
+
+    describe("existBet", () => {
+        describe("when have existing betTrack", () => {
+            it("should return true if amount > 0", () => {
+                //Arrange
+                const lastBet = {
+                    even: 2000,
+                    big: 200,
+                    totalAmount: 2200,
+                };
+                betsRepository.findOne().lean().exec.mockReturnValueOnce(lastBet);
+                gameData = initGameData(player, definition.durations.placingBets - 2);
+                gameData.ingame[player.profile.name] = player;
+                player.betTracks = { even: 2000 };
+
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.existBet(player);
+
+                //Assert
+                expect(result).toBeTrue();
+            });
+
+            it("should return false if amount is 0", () => {
+                //Arrange
+                const lastBet = {
+                    even: 2000,
+                    big: 200,
+                    totalAmount: 2200,
+                };
+                betsRepository.findOne().lean().exec.mockReturnValueOnce(lastBet);
+                gameData = initGameData(player, definition.durations.placingBets - 2);
+                gameData.ingame[player.profile.name] = player;
+                player.betTracks = { even: 0 };
+
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.existBet(player);
+
+                //Assert
+                expect(result).toBeFalse();
+            });
+        });
+        describe("when not exist betTrack", () => {
+            it("should return false", () => {
+                //Arrange
+                const lastBet = {
+                    even: 2000,
+                    big: 200,
+                    totalAmount: 2200,
+                };
+                betsRepository.findOne().lean().exec.mockReturnValueOnce(lastBet);
+                gameData = initGameData(player, definition.durations.placingBets - 2);
+
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.existBet(player);
+
+                //Assert
+                expect(result).toBeFalse();
+            });
+        });
+    });
 });

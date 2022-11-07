@@ -20,11 +20,11 @@ export default class RebetConsumer {
             .exec();
     }
 
-    async existBet(player) {
+    existBet(player) {
         const inGameData = this.gameData.ingame[player.profile.name];
 
         if (inGameData) {
-            return Object.keys(inGameData.betTracks).length > 0;
+            return Object.values(inGameData.betTracks).some((amount) => amount > 0);
         }
 
         return false;
@@ -89,7 +89,7 @@ export default class RebetConsumer {
     async consume(player, payload) {
         const lastBet = await this.getLastBet(player);
 
-        if (!lastBet || (await this.existBet(player))) {
+        if (!lastBet || this.existBet(player)) {
             this.publisher.publishToUser(player.UID, { endBet: -1, notice: { errorCode: notices.invalidBet } });
             return;
         }
