@@ -133,7 +133,7 @@ describe("RebetConsumer", () => {
         gameData = initGameData(player, definition.durations.placingBets - 2);
         gameData.roundId = 100;
 
-        describe("when old bet has amount on choice that exceeds current max bet", () => {
+        describe("when last bet has amount on choice that exceeds current max bet", () => {
             it("should publish maxBetOfAnyChoiceReached error to user", () => {
                 //Arrange
                 const lastBet = {
@@ -198,8 +198,71 @@ describe("RebetConsumer", () => {
         });
     });
 
-    describe("convertlastBet", () => {
-        it("should return object contains choices with amount >0", () => {
+    describe("composeBetAmountValidationCriteria", () => {
+        gameData = initGameData(player, definition.durations.placingBets - 2);
+        gameData.roundId = 100;
+
+        describe("when totalAmount reached max user stake level", () => {
+            beforeEach(() => {
+                player.profile.maxBet = 1000;
+            });
+
+            it("should return maxBet errorCode if totalAmount was greater", () => {
+                //Arrange
+                const lastBet = {
+                    even: 2000,
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.composeBetAmountValidationCriteria(player, lastBet, false, 2000);
+
+                //Assert
+                expect(result[3].notice).toStrictEqual({
+                    errorCode: notices.maxBet,
+                    maxBet: 1000,
+                });
+            });
+
+            it("should return false", () => {
+                //Arrange
+                const lastBet = {
+                    even: 2000,
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.composeBetAmountValidationCriteria(player, lastBet, false, 2000);
+
+                //Assert
+                expect(result[3].failure).toBeTrue();
+            });
+        });
+
+        describe("when bet is valid", () => {
+            it("should return true", () => {
+                //Arrange
+                const lastBet = {
+                    even: 10,
+                };
+                const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
+
+                //Act
+                const result = consumer.validateBetRequest(player, {
+                    lastBet,
+                    freeBet: false,
+                    roundId: gameData.roundId,
+                    totalAmount: 10,
+                });
+
+                //Assert
+                expect(result).toBeTrue();
+            });
+        });
+    });
+
+    describe("convertLastBet", () => {
+        it("should return object contains choices with amount > 0", () => {
             //Arrange
             const lastBet = {
                 even: 2000,
@@ -216,7 +279,7 @@ describe("RebetConsumer", () => {
             const consumer = initConsumer(definition, gameData, baseEventPublisher, betsRepository, placeBetConsumer);
 
             //Act
-            const result = consumer.convertlastBet(lastBet);
+            const result = consumer.convertLastBet(lastBet);
 
             //Assert
             expect(result).toStrictEqual({ even: 2000, big: 200 });

@@ -36,7 +36,7 @@ export default class RebetConsumer {
             player,
             payload.lastBet,
             payload.freeBet,
-            payload.totalAmount
+            payload.amount
         );
 
         return bettingTimeValidationCriteria.concat(betAmountValidationCriteria);
@@ -101,7 +101,7 @@ export default class RebetConsumer {
             mode: payload.m ?? this.DisplayMode.Landscape,
             receivedTime: new Date(),
             rebet: true,
-            lastBet: this.convertlastBet(lastBet),
+            lastBet: this.convertLastBet(lastBet),
         });
 
         if (!this.validateBetRequest(player, payload)) {
@@ -128,7 +128,7 @@ export default class RebetConsumer {
         this.gameData.ingame[name].betQueue.push({ player, payload });
     }
 
-    convertlastBet(lastBet) {
+    convertLastBet(lastBet) {
         const result = {};
 
         this.definition.choices.forEach((choice) => {

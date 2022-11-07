@@ -1,4 +1,4 @@
-export default class ReBetProcessor {
+export default class RebetProcessor {
     assignAmountToChoice(betLog, rebet) {
         Object.entries(rebet).forEach(([choice, amount]) => (betLog[choice] = amount));
 
