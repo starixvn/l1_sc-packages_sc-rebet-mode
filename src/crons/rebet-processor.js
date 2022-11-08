@@ -7,7 +7,6 @@ export default class RebetProcessor {
 
     convertAmountToChipList(bet, chipConfiguration) {
         const rebetChips = {};
-
         const sortedChips = chipConfiguration.map((x) => parseInt(x)).sort((num1, num2) => num2 - num1);
 
         for (const [betChoice, betAmount] of Object.entries(bet)) {
