@@ -91,6 +91,7 @@ export default class RebetConsumer {
 
         if (!lastBet || this.existBet(player)) {
             this.publisher.publishToUser(player.UID, { endBet: -1, notice: { errorCode: notices.invalidBet } });
+
             return;
         }
 
