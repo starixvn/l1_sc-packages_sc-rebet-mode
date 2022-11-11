@@ -22,15 +22,22 @@ export default class ProcessBetQueue {
         this.baseProcessBetQueue = baseProcessBetQueue;
         this.rebetProcessor = rebetProcessor;
 
-        this.baseFunctions = {
-            decreaseBetTracks: this.baseProcessBetQueue.decreaseBetTracks,
-            insertBetLog: this.baseProcessBetQueue.insertBetLog,
-            upsertBet: this.baseProcessBetQueue.upsertBet,
-            adjustTotalBets: this.baseProcessBetQueue.adjustTotalBets,
-            adjustOwnBets: this.baseProcessBetQueue.adjustOwnBets,
-            generatePlacingBetResult: this.baseProcessBetQueue.generatePlacingBetResult,
-            updateGameDataChips: this.baseProcessBetQueue.updateGameDataChips,
+        this.baseProcessBetQueue.baseFunctions = {
+            decreaseBetTracks: this.baseProcessBetQueue.decreaseBetTracks.bind(this.baseProcessBetQueue),
+            insertBetLog: this.baseProcessBetQueue.insertBetLog.bind(this.baseProcessBetQueue),
+            upsertBet: this.baseProcessBetQueue.upsertBet.bind(this.baseProcessBetQueue),
+            adjustTotalBets: this.baseProcessBetQueue.adjustTotalBets.bind(this.baseProcessBetQueue),
+            adjustOwnBets: this.baseProcessBetQueue.adjustOwnBets.bind(this.baseProcessBetQueue),
+            generatePlacingBetResult: this.baseProcessBetQueue.generatePlacingBetResult.bind(this.baseProcessBetQueue),
         };
+
+        this.baseProcessBetQueue.rebetProcessor = this.rebetProcessor;
+        this.baseProcessBetQueue.decreaseBetTracks = this.decreaseBetTracks;
+        this.baseProcessBetQueue.insertBetLog = this.insertBetLog;
+        this.baseProcessBetQueue.upsertBet = this.upsertBet;
+        this.baseProcessBetQueue.adjustTotalBets = this.adjustTotalBets;
+        this.baseProcessBetQueue.adjustOwnBets = this.adjustOwnBets;
+        this.baseProcessBetQueue.generatePlacingBetResult = this.generatePlacingBetResult;
     }
 
     start() {
@@ -49,25 +56,6 @@ export default class ProcessBetQueue {
                     const { player, payload } = playerInGame.betQueue.shift();
 
                     playerInGame.betProcessing = true;
-
-                    if (payload.rebet) {
-                        this.baseProcessBetQueue.decreaseBetTracks = this.decreaseBetTracks.bind(this);
-                        this.baseProcessBetQueue.insertBetLog = this.insertBetLog.bind(this);
-                        this.baseProcessBetQueue.upsertBet = this.upsertBet.bind(this);
-                        this.baseProcessBetQueue.adjustTotalBets = this.adjustTotalBets.bind(this);
-                        this.baseProcessBetQueue.adjustOwnBets = this.adjustOwnBets.bind(this);
-                        this.baseProcessBetQueue.generatePlacingBetResult = this.generatePlacingBetResult.bind(this);
-                    } else {
-                        this.baseProcessBetQueue.decreaseBetTracks = this.baseFunctions.decreaseBetTracks.bind(this.baseProcessBetQueue);
-                        this.baseProcessBetQueue.insertBetLog = this.baseFunctions.insertBetLog.bind(this.baseProcessBetQueue);
-                        this.baseProcessBetQueue.upsertBet = this.baseFunctions.upsertBet.bind(this.baseProcessBetQueue);
-                        this.baseProcessBetQueue.adjustTotalBets = this.baseFunctions.adjustTotalBets.bind(this.baseProcessBetQueue);
-                        this.baseProcessBetQueue.adjustOwnBets = this.baseFunctions.adjustOwnBets.bind(this.baseProcessBetQueue);
-                        this.baseProcessBetQueue.generatePlacingBetResult = this.baseFunctions.generatePlacingBetResult.bind(
-                            this.baseProcessBetQueue
-                        );
-                    }
-
                     this.baseProcessBetQueue
                         .proceedBet(player, payload)
                         .then(() => (playerInGame.betProcessing = false))
@@ -78,10 +66,14 @@ export default class ProcessBetQueue {
     }
 
     decreaseBetTracks(playerName, bet) {
-        const { lastBet } = bet;
-        Object.entries(lastBet).forEach(([betChoice, amount]) =>
-            this.baseFunctions.decreaseBetTracks.bind(this.baseProcessBetQueue)(playerName, { betChoice, amount })
-        );
+        if (bet.rebet) {
+            const { lastBet } = bet;
+            Object.entries(lastBet).forEach(([betChoice, amount]) =>
+                this.baseFunctions.decreaseBetTracks(playerName, { betChoice, amount })
+            );
+        } else {
+            this.baseFunctions.decreaseBetTracks(playerName, bet);
+        }
     }
 
     async insertBetLog(player, roundId, bet, rate) {
@@ -96,8 +88,12 @@ export default class ProcessBetQueue {
             rebet: false,
         };
 
-        newBetLog.rebet = true;
-        newBetLog = this.rebetProcessor.assignAmountToChoice(newBetLog, bet.lastBet);
+        if (bet.rebet) {
+            newBetLog.rebet = true;
+            newBetLog = this.rebetProcessor.assignAmountToChoice(newBetLog, bet.lastBet);
+        } else {
+            newBetLog[bet.betChoice] = bet.amount;
+        }
 
         if (player.session) {
             newBetLog.siteId = player.session.siteId;
@@ -125,7 +121,11 @@ export default class ProcessBetQueue {
             totalAmount: bet.amount,
         };
 
-        existingBetIncrement = this.rebetProcessor.assignAmountToChoice(existingBetIncrement, bet.lastBet);
+        if (bet.rebet) {
+            existingBetIncrement = this.rebetProcessor.assignAmountToChoice(existingBetIncrement, bet.lastBet);
+        } else {
+            existingBetIncrement[bet.betChoice] = bet.amount;
+        }
 
         if (player.session) {
             newBet.siteId = player.session.siteId;
@@ -144,55 +144,37 @@ export default class ProcessBetQueue {
     }
 
     adjustTotalBets(player, bet, rate) {
-        const { lastBet } = bet;
-        Object.entries(lastBet).forEach(([betChoice, amount]) =>
-            this.baseFunctions.adjustTotalBets.bind(this.baseProcessBetQueue)(player, { betChoice, amount }, rate)
-        );
+        if (bet.rebet) {
+            const { lastBet } = bet;
+            Object.entries(lastBet).forEach(([betChoice, amount]) =>
+                this.baseFunctions.adjustTotalBets(player, { betChoice, amount }, rate)
+            );
+        } else {
+            this.baseFunctions.adjustTotalBets(player, bet, rate);
+        }
     }
 
     adjustOwnBets(playerName, bet) {
-        const { lastBet } = bet;
-        Object.entries(lastBet).forEach(([betChoice, amount]) =>
-            this.baseFunctions.adjustOwnBets.bind(this.baseProcessBetQueue)(playerName, { betChoice, amount })
-        );
+        if (bet.rebet) {
+            const { lastBet } = bet;
+
+            Object.entries(lastBet).forEach(([betChoice, amount]) => this.baseFunctions.adjustOwnBets(playerName, { betChoice, amount }));
+        } else {
+            this.baseFunctions.adjustOwnBets(playerName, bet);
+        }
     }
 
     generatePlacingBetResult(player, balance, bet, rate) {
         const { amount, freeBet, betChoice } = bet;
         const { ownBets } = this.gameData.ingame[player.profile.name] || { ownBets: {} };
 
-        const result = {
-            ownBets,
+        return {
+            ownBets: ownBets,
             endBet: amount,
             betChoice,
             freeBet,
             user: { ...balance },
-            rebet: null,
+            rebet: bet.lastBet,
         };
-
-        if (this.gameData.players[player.UID]) {
-            this.gameData.players[player.UID].red = balance.red;
-        }
-
-        result.rebet = this.updateRebetGameDataChips(player, bet, rate);
-
-        return result;
-    }
-
-    updateRebetGameDataChips(player, bet, rate) {
-        const { chips } = this.gameData.currencyGroupGames.find((x) => x.groupId.toString() === player.session.currencyGroupId);
-
-        const rebetChips = this.rebetProcessor.convertAmountToChipList(bet.lastBet, chips);
-
-        for (const betChoice of Object.keys(rebetChips)) {
-            const chipList = rebetChips[betChoice];
-            for (const chipAmount of Object.keys(chipList)) {
-                for (let index = 0; index < chipList[chipAmount]; index++) {
-                    this.baseFunctions.updateGameDataChips.bind(this.baseProcessBetQueue)({ betChoice, amount: chipAmount }, rate);
-                }
-            }
-        }
-
-        return rebetChips;
     }
 }
