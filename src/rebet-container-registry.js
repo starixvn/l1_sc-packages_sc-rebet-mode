@@ -2,6 +2,7 @@ import { asClass } from "awilix";
 import RebetConsumer from "./consumers/rebet-consumer";
 import SocketRouter from "./routers/socket-router";
 import { TableProcessBetQueue, ProcessBetQueue, ReBetProcessor } from "./crons";
+import { PlaceBetPublisher } from "./publishers";
 
 export default class RebetContainerRegistry {
     register(baseSocketRouter) {
@@ -16,7 +17,7 @@ export default class RebetContainerRegistry {
         };
     }
 
-    registerTableGame(baseSocketRouter, baseProcessBetQueue) {
+    registerTableGame(baseSocketRouter, baseProcessBetQueue, basePlaceBetPublisher) {
         return {
             rebetConsumer: asClass(RebetConsumer).singleton(),
             socketRouter: asClass(SocketRouter).proxy(),
@@ -25,6 +26,9 @@ export default class RebetContainerRegistry {
             rebetProcessor: asClass(ReBetProcessor).singleton().proxy(),
             processBetQueue: asClass(TableProcessBetQueue).singleton().proxy(),
             baseProcessBetQueue: asClass(baseProcessBetQueue).singleton().proxy(),
+
+            placeBetPublisher: asClass(PlaceBetPublisher).singleton(),
+            basePlaceBetPublisher: asClass(basePlaceBetPublisher).singleton(),
         };
     }
 }
