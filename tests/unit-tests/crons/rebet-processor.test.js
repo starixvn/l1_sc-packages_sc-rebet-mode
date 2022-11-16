@@ -7,11 +7,11 @@ describe("RebetProcessor", () => {
         it("assign amount to corresponding choice", () => {
             // Arrange
             const bet = { odd: 100, even: 1200 };
-            const betLog = { playerId: 21000 };
-            const expected = { ...betLog, ...bet };
+            const playerInfo = { playerId: 21000 };
+            const expected = { ...playerInfo, ...bet };
 
             // Act
-            const result = rebetProcessor.assignAmountToChoice(betLog, bet);
+            const result = rebetProcessor.assignAmountToChoice(playerInfo, bet);
 
             // Assert
             expect(result).toStrictEqual(expected);
@@ -27,6 +27,25 @@ describe("RebetProcessor", () => {
 
             // Act
             const result = rebetProcessor.convertAmountToChipList(bet, chipConfig);
+
+            // Assert
+            expect(result).toStrictEqual(expected);
+        });
+    });
+
+    describe("flatChips", () => {
+        it("flat chips", () => {
+            // Arrange
+            const rebetChips = { odd: { 100: 1 }, even: { 1000: 1, 100: 2 } };
+            const expected = [
+                { betChoice: "odd", amount: "100" },
+                { betChoice: "even", amount: "100" },
+                { betChoice: "even", amount: "100" },
+                { betChoice: "even", amount: "1000" },
+            ];
+
+            // Act
+            const result = rebetProcessor.flatChips(rebetChips);
 
             // Assert
             expect(result).toStrictEqual(expected);

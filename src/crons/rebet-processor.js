@@ -22,4 +22,19 @@ export default class RebetProcessor {
 
         return rebetChips;
     }
+
+    flatChips(rebetChips) {
+        const chips = [];
+
+        for (const betChoice of Object.keys(rebetChips)) {
+            const chipList = rebetChips[betChoice];
+            for (const chipAmount of Object.keys(chipList)) {
+                for (let index = 0; index < chipList[chipAmount]; index++) {
+                    chips.push({ betChoice, amount: chipAmount });
+                }
+            }
+        }
+
+        return chips;
+    }
 }
