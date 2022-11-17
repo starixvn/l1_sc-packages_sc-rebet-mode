@@ -33,8 +33,8 @@ describe("RebetProcessor", () => {
         });
     });
 
-    describe("flatChips", () => {
-        it("flat chips", () => {
+    describe("flattenChips", () => {
+        it("should return list of bet choice and amount", () => {
             // Arrange
             const rebetChips = { odd: { 100: 1 }, even: { 1000: 1, 100: 2 } };
             const expected = [

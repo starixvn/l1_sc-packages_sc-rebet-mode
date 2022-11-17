@@ -23,7 +23,7 @@ export default class RebetProcessor {
         return rebetChips;
     }
 
-    flatChips(rebetChips) {
+    flattenChips(rebetChips) {
         const chips = [];
 
         for (const betChoice of Object.keys(rebetChips)) {
