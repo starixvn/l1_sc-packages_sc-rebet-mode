@@ -45,7 +45,7 @@ describe("RebetProcessor", () => {
             ];
 
             // Act
-            const result = rebetProcessor.flatChips(rebetChips);
+            const result = rebetProcessor.flattenChips(rebetChips);
 
             // Assert
             expect(result).toStrictEqual(expected);
