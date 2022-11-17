@@ -8,11 +8,16 @@ stages:
     - publish
 include:
     - project: "ci/common-ci"
-      ref: master
+      ref: update-node-image
       file: "unit-test/js-unit-test.gitlab-ci.yml"
     - project: "ci/common-ci"
-      ref: master
+      ref: update-node-image
       file: "sonarqube/sonarqube.js-unittest.gitlab-ci.yml"
     - project: "ci/common-ci"
-      ref: master
+      ref: update-node-image
       file: "npm/publish-npm.gitlab-ci.yml"
+
+publish_npm:
+  rules:
+    - when: always
+    
