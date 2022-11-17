@@ -20,4 +20,3 @@ include:
 publish_npm:
   rules:
     - when: always
-    
