@@ -1,3 +1,3 @@
-import PlaceBetPublisher from './place-bet-publisher';
+import TablePlaceBetPublisher from "./table-place-bet-publisher";
 
-export { PlaceBetPublisher };
+export { TablePlaceBetPublisher };

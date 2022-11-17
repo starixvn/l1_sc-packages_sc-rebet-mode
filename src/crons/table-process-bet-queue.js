@@ -1,36 +1,6 @@
 import ProcessBetQueue from "./process-bet-queue";
 
 export default class TableProcessBetQueue extends ProcessBetQueue {
-    constructor({
-        definition,
-        gameData,
-        placeBetPublisher,
-        betsRepository,
-        betLogsRepository,
-        logService,
-        baseMetrics,
-        baseProcessBetQueue,
-        rebetProcessor,
-    }) {
-        super({
-            definition,
-            gameData,
-            placeBetPublisher,
-            betsRepository,
-            betLogsRepository,
-            logService,
-            baseMetrics,
-            baseProcessBetQueue,
-            rebetProcessor,
-        });
-
-        this.baseProcessBetQueue.baseFunctions.updateGameDataChips = this.baseProcessBetQueue.updateGameDataChips.bind(
-            this.baseProcessBetQueue
-        );
-
-        this.baseProcessBetQueue.updateRebetGameDataChips = this.updateRebetGameDataChips;
-    }
-
     generatePlacingBetResult(player, balance, bet, rate) {
         const { amount, freeBet, betChoice } = bet;
         const { ownBets } = this.gameData.ingame[player.profile.name] || { ownBets: {} };
@@ -52,7 +22,7 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
             result.rebet = this.updateRebetGameDataChips(player, bet, rate);
         } else {
             result.ownChip = { betChoice, amount };
-            this.baseFunctions.updateGameDataChips(bet, rate);
+            this.updateGameDataChips(bet, rate);
         }
 
         return result;
@@ -67,11 +37,22 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
             const chipList = rebetChips[betChoice];
             for (const chipAmount of Object.keys(chipList)) {
                 for (let index = 0; index < chipList[chipAmount]; index++) {
-                    this.baseFunctions.updateGameDataChips({ betChoice, amount: chipAmount }, rate);
+                    this.updateGameDataChips({ betChoice, amount: chipAmount }, rate);
                 }
             }
         }
 
         return rebetChips;
+    }
+
+    updateGameDataChips(bet, rate) {
+        const { betChoice, amount } = bet;
+
+        if (!this.gameData.chips[rate]) {
+            this.gameData.chips[rate] = { [betChoice]: { amount: 1 } };
+        } else {
+            this.gameData.chips[rate][betChoice] = this.gameData.chips[rate][betChoice] ?? {};
+            this.gameData.chips[rate][betChoice][amount] = (this.gameData.chips[rate][betChoice][amount] ?? 0) + 1;
+        }
     }
 }

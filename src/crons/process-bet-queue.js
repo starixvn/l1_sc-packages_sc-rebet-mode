@@ -1,78 +1,41 @@
-export default class ProcessBetQueue {
+import { Core } from "sc-game-base";
+
+export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
     processTimeOut = 50;
 
     constructor({
         definition,
         gameData,
         placeBetPublisher,
+        placeBet,
+        logService,
         betsRepository,
         betLogsRepository,
-        logService,
+        userInfosRepository,
         baseMetrics,
-        baseProcessBetQueue,
         rebetProcessor,
     }) {
-        this.definition = definition;
-        this.gameData = gameData;
-        this.placeBetPublisher = placeBetPublisher;
-        this.betsRepository = betsRepository;
-        this.betLogsRepository = betLogsRepository;
-        this.baseMetrics = baseMetrics;
-        this.logService = logService;
-        this.baseProcessBetQueue = baseProcessBetQueue;
+        super({
+            definition,
+            gameData,
+            placeBetPublisher,
+            placeBet,
+            logService,
+            betsRepository,
+            betLogsRepository,
+            userInfosRepository,
+            baseMetrics,
+        });
+
         this.rebetProcessor = rebetProcessor;
-
-        this.baseProcessBetQueue.baseFunctions = {
-            decreaseBetTracks: this.baseProcessBetQueue.decreaseBetTracks.bind(this.baseProcessBetQueue),
-            insertBetLog: this.baseProcessBetQueue.insertBetLog.bind(this.baseProcessBetQueue),
-            upsertBet: this.baseProcessBetQueue.upsertBet.bind(this.baseProcessBetQueue),
-            adjustTotalBets: this.baseProcessBetQueue.adjustTotalBets.bind(this.baseProcessBetQueue),
-            adjustOwnBets: this.baseProcessBetQueue.adjustOwnBets.bind(this.baseProcessBetQueue),
-            generatePlacingBetResult: this.baseProcessBetQueue.generatePlacingBetResult.bind(this.baseProcessBetQueue),
-        };
-
-        this.baseProcessBetQueue.rebetProcessor = this.rebetProcessor;
-        this.baseProcessBetQueue.decreaseBetTracks = this.decreaseBetTracks;
-        this.baseProcessBetQueue.insertBetLog = this.insertBetLog;
-        this.baseProcessBetQueue.upsertBet = this.upsertBet;
-        this.baseProcessBetQueue.adjustTotalBets = this.adjustTotalBets;
-        this.baseProcessBetQueue.adjustOwnBets = this.adjustOwnBets;
-        this.baseProcessBetQueue.generatePlacingBetResult = this.generatePlacingBetResult;
-    }
-
-    start() {
-        const keepDequeuingBets = () => {
-            this.dequeueBets();
-            setTimeout(keepDequeuingBets, this.processTimeOut);
-        };
-
-        setTimeout(keepDequeuingBets, this.processTimeOut);
-    }
-
-    dequeueBets() {
-        if (this.gameData.ingame) {
-            Object.values(this.gameData.ingame).forEach((playerInGame) => {
-                if (!playerInGame.betProcessing && playerInGame.betQueue && playerInGame.betQueue.length > 0) {
-                    const { player, payload } = playerInGame.betQueue.shift();
-
-                    playerInGame.betProcessing = true;
-                    this.baseProcessBetQueue
-                        .proceedBet(player, payload)
-                        .then(() => (playerInGame.betProcessing = false))
-                        .catch(this.logService.logError);
-                }
-            });
-        }
     }
 
     decreaseBetTracks(playerName, bet) {
         if (bet.rebet) {
             const { lastBet } = bet;
-            Object.entries(lastBet).forEach(([betChoice, amount]) =>
-                this.baseFunctions.decreaseBetTracks(playerName, { betChoice, amount })
-            );
+            Object.entries(lastBet).forEach(([betChoice, amount]) => super.decreaseBetTracks(playerName, { betChoice, amount }));
         } else {
-            this.baseFunctions.decreaseBetTracks(playerName, bet);
+            super.decreaseBetTracks(playerName, bet);
         }
     }
 
@@ -146,11 +109,9 @@ export default class ProcessBetQueue {
     adjustTotalBets(player, bet, rate) {
         if (bet.rebet) {
             const { lastBet } = bet;
-            Object.entries(lastBet).forEach(([betChoice, amount]) =>
-                this.baseFunctions.adjustTotalBets(player, { betChoice, amount }, rate)
-            );
+            Object.entries(lastBet).forEach(([betChoice, amount]) => super.adjustTotalBets(player, { betChoice, amount }, rate));
         } else {
-            this.baseFunctions.adjustTotalBets(player, bet, rate);
+            super.adjustTotalBets(player, bet, rate);
         }
     }
 
@@ -158,9 +119,9 @@ export default class ProcessBetQueue {
         if (bet.rebet) {
             const { lastBet } = bet;
 
-            Object.entries(lastBet).forEach(([betChoice, amount]) => this.baseFunctions.adjustOwnBets(playerName, { betChoice, amount }));
+            Object.entries(lastBet).forEach(([betChoice, amount]) => super.adjustOwnBets(playerName, { betChoice, amount }));
         } else {
-            this.baseFunctions.adjustOwnBets(playerName, bet);
+            super.adjustOwnBets(playerName, bet);
         }
     }
 

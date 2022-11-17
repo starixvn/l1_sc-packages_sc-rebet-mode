@@ -1,12 +1,8 @@
-import systems from "../constants/systems";
+import { Core, Constants } from "sc-game-base";
 
-export default class PlaceBetPublisher {
-    constructor(basePlaceBetPublisher) {
-        this.basePlaceBetPublisher = basePlaceBetPublisher;
-    }
-
+export default class TablePlaceBetPublisher extends Core.BaseEventPublishers.PlaceBetPublisher {
     publishSuccessBet(playerId, payload, rate) {
-        this.basePlaceBetPublisher.publishToUser(playerId, payload);
+        this.publishToUser(playerId, payload);
 
         const otherUsersPayload = {
             playerId,
@@ -18,14 +14,14 @@ export default class PlaceBetPublisher {
             for (const [betChoice, chips] of Object.entries(payload.rebet)) {
                 for (const [amount, count] of Object.entries(chips)) {
                     for (let i = 0; i < count; i++) {
-                        this.basePlaceBetPublisher.publishToAllUsersExceptSystem(systems.Mobi, playerId, {
+                        this.publishToAllUsersExceptSystem(Constants.Systems.Mobi, playerId, {
                             playerChip: { ...otherUsersPayload, betChoice, amount },
                         });
                     }
                 }
             }
         } else {
-            this.basePlaceBetPublisher.publishToAllUsersExceptSystem(systems.Mobi, playerId, {
+            this.publishToAllUsersExceptSystem(Constants.Systems.Mobi, playerId, {
                 playerChip: { ...otherUsersPayload, ...payload.ownChip },
             });
         }
