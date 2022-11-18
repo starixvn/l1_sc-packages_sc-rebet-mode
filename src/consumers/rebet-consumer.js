@@ -1,12 +1,11 @@
 import notices from "../constants/notices";
+import { Core } from "sc-game-base";
 
-export default class RebetConsumer {
-    constructor(definition, gameData, publisher, betsRepository, placeBetConsumer) {
-        this.definition = definition;
-        this.gameData = gameData;
-        this.publisher = publisher;
+export default class RebetConsumer extends Core.BaseEventConsumers.PlaceBetConsumer {
+    constructor(definition, gameData, publisher, betsRepository) {
+        super(definition, gameData, publisher);
+        
         this.betsRepository = betsRepository;
-        this.placeBetConsumer = placeBetConsumer;
     }
 
     async getLastBet(player) {
@@ -31,7 +30,7 @@ export default class RebetConsumer {
     }
 
     composeValidationCriteria(player, payload) {
-        const bettingTimeValidationCriteria = this.placeBetConsumer.composeBettingTimeValidationCriteria(payload.roundId);
+        const bettingTimeValidationCriteria = this.composeBettingTimeValidationCriteria(payload.roundId);
         const betAmountValidationCriteria = this.composeBetAmountValidationCriteria(
             player,
             payload.lastBet,
@@ -53,22 +52,22 @@ export default class RebetConsumer {
         return [
             {
                 failure: freeBet && !configs.enableFreeBet,
-                notice: this.placeBetConsumer.getNoticeObj(notices.invalidBet),
+                notice: this.getNoticeObj(notices.invalidBet),
             },
             {
                 failure: entries.some(
                     ([choice, amount]) =>
                         (betTracks[choice] ?? 0) + amount > Math.min(player.profile.maxBet, settings.maxBetPerChoices[choice])
                 ),
-                notice: this.placeBetConsumer.getNoticeObj(notices.maxBetOfAnyChoiceReached),
+                notice: this.getNoticeObj(notices.maxBetOfAnyChoiceReached),
             },
             {
                 failure: entries.some(([choice, amount]) => amount < minBet),
-                notice: this.placeBetConsumer.getNoticeObj(notices.minBet, { minBet }),
+                notice: this.getNoticeObj(notices.minBet, { minBet }),
             },
             {
                 failure: totalAmount > maxBet,
-                notice: this.placeBetConsumer.getNoticeObj(notices.maxBet, { maxBet }),
+                notice: this.getNoticeObj(notices.maxBet, { maxBet }),
             },
         ];
     }
