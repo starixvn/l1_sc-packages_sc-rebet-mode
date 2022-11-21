@@ -4,7 +4,7 @@ import { Core } from "sc-game-base";
 export default class RebetConsumer extends Core.BaseEventConsumers.PlaceBetConsumer {
     constructor(definition, gameData, publisher, betsRepository) {
         super(definition, gameData, publisher);
-        
+
         this.betsRepository = betsRepository;
     }
 
