@@ -124,7 +124,7 @@ export default class RebetConsumer extends Core.BaseEventConsumers.PlaceBetConsu
             this.gameData.ingame[name] = newPlayer;
         }
 
-        this.adjustBetTracks(player.profile.name, payload.lastBet);
+        this.adjustBetTracks(player, payload.lastBet);
         this.gameData.ingame[name].betQueue.push({ player, payload });
     }
 
@@ -140,8 +140,8 @@ export default class RebetConsumer extends Core.BaseEventConsumers.PlaceBetConsu
         return result;
     }
 
-    adjustBetTracks(playerName, lastBet) {
-        const playerInGame = this.gameData.ingame[playerName];
+    adjustBetTracks(player, lastBet) {
+        const playerInGame = this.gameData.ingame[player.profile.name];
 
         Object.entries(lastBet).forEach(
             ([choice, amount]) => (playerInGame.betTracks[choice] = (playerInGame.betTracks[choice] ?? 0) + amount)

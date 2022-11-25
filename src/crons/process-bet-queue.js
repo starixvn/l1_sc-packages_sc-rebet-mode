@@ -1,4 +1,5 @@
 import { Core } from "sc-game-base";
+import notice from "../constants/notices";
 
 export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
     processTimeOut = 50;
@@ -30,12 +31,25 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
         this.rebetProcessor = rebetProcessor;
     }
 
-    decreaseBetTracks(playerName, bet) {
+    handleFailedBet(player, notice, bet) {
+        const { betChoice } = bet;
+        this.decreaseBetTracks(player, bet);
+
+        if (notice.apiError) {
+            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, apiError: notice.apiError });
+        } else if (notice.kickedOut) {
+            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, kickedOut: notice.kickedOut });
+        } else {
+            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, notice });
+        }
+    }
+
+    decreaseBetTracks(player, bet) {
         if (bet.rebet) {
             const { lastBet } = bet;
-            Object.entries(lastBet).forEach(([betChoice, amount]) => super.decreaseBetTracks(playerName, { betChoice, amount }));
+            Object.entries(lastBet).forEach(([betChoice, amount]) => super.decreaseBetTracks(player.profile.name, { betChoice, amount }));
         } else {
-            super.decreaseBetTracks(playerName, bet);
+            super.decreaseBetTracks(player.profile.name, bet);
         }
     }
 

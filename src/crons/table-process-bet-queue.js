@@ -29,10 +29,7 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
     }
 
     updateRebetGameDataChips(player, bet, rate) {
-        const { chips } = this.gameData.currencyGroupGames.find((x) => x.groupId.toString() === player.session.currencyGroupId);
-
-        const rebetChips = this.rebetProcessor.convertAmountToChipList(bet.lastBet, chips);
-
+        const rebetChips = this.rebetProcessor.convertRebetToChipList(player, this.gameData.currencyGroupGames, bet);
         for (const betChoice of Object.keys(rebetChips)) {
             const chipList = rebetChips[betChoice];
             for (const chipAmount of Object.keys(chipList)) {

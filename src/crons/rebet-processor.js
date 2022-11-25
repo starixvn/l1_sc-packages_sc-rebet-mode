@@ -22,4 +22,9 @@ export default class RebetProcessor {
 
         return rebetChips;
     }
+
+    convertRebetToChipList(player, currencyGroupGames, bet) {
+        const { chips } = currencyGroupGames.find((x) => x.groupId.toString() === player.session.currencyGroupId);
+        return this.convertAmountToChipList(bet.lastBet, chips);
+    }
 }
