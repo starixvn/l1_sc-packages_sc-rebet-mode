@@ -1,6 +1,6 @@
 {
     "name": "sc-rebet-mode",
-    "version": "1.0.0",
+    "version": "1.0.1-beta.13",
     "description": "SC Rebet Mode",
     "main": "./src/index.js",
     "scripts": {
@@ -27,7 +27,8 @@
     "license": "ISC",
     "dependencies": {
         "awilix": "^4.3.4",
-        "chance": "^1.1.7"
+        "chance": "^1.1.7",
+        "sc-game-base": "3.1.1"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.12.11",
