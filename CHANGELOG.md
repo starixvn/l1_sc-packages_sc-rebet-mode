@@ -1,3 +1,15 @@
+## [1.0.1](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.0...v1.0.1) (2022-11-28)
+
+
+### Bug Fixes
+
+* add place-bet-publisher ([c9aa71d](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/c9aa71d74965954cc16906ba5553ba82e944b2f8))
+* add process-bet-queue ([07998af](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/07998af8b0768e0a086638358fefb17d0906ab4e))
+* add sc-game-base ([f63cb4d](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/f63cb4d7dcaf61e97bae88d0c4eb6f8a4728a056))
+* update adjustBetTracks, decreaseBetTracks ([0e45573](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/0e455730aec1ace83782053d0c7a630bcd7c6b69))
+* update process-bet-queue ([216a4d9](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/216a4d951ae81a3ef39fa8f03bd44a1e02037eac))
+* update RebetConsumer ([5399fe4](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/5399fe4b1546dbbccf747ccc76c9125b063a4b2a))
+
 # 1.0.0 (2022-11-08)
 
 
