@@ -92,6 +92,7 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
             odds: configs.odds,
             freeBet: bet.freeBet,
             roundId,
+            rebet: !!bet.rebet,
         };
         const existingBetFilter = { uid: player.UID, roundId, freeBet: bet.freeBet };
         let existingBetIncrement = {
