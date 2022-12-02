@@ -1,5 +1,4 @@
 import { Core } from "sc-game-base";
-import notice from "../constants/notices";
 
 export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
     processTimeOut = 50;
@@ -92,6 +91,7 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
             odds: configs.odds,
             freeBet: bet.freeBet,
             roundId,
+            rebet: !!bet.rebet,
         };
         const existingBetFilter = { uid: player.UID, roundId, freeBet: bet.freeBet };
         let existingBetIncrement = {
