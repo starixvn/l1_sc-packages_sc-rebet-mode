@@ -1,6 +1,6 @@
 {
     "name": "sc-rebet-mode",
-    "version": "1.0.2-beta.2",
+    "version": "1.0.2",
     "description": "SC Rebet Mode",
     "main": "./src/index.js",
     "scripts": {

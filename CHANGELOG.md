@@ -1,3 +1,11 @@
+## [1.0.2](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.1...v1.0.2) (2022-12-02)
+
+
+### Bug Fixes
+
+* add rebet to bet ([706751b](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/706751b649baa0157072b2d08b45b85d09a1c73b))
+* game data chips issue ([3abf923](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/3abf923ae8e605058579261974eac4a4e429d382))
+
 ## [1.0.1](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.0...v1.0.1) (2022-11-28)
 
 
