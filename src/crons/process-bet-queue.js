@@ -1,5 +1,4 @@
 import { Core } from "sc-game-base";
-import notice from "../constants/notices";
 
 export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
     processTimeOut = 50;
