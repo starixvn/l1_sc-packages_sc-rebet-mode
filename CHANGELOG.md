@@ -1,3 +1,13 @@
+## [1.0.3](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.2...v1.0.3) (2023-09-05)
+
+
+### Bug Fixes
+
+* add new line ([c2d3e66](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/c2d3e66654b89ede3d8e6a8c3c5c6515775cf68e))
+* add TableProcessBetQueueSeparateBetLog ([602660c](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/602660cdc39d469a5ed6726c175c2a8c10561783))
+* update gitlab ci images ([8622405](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/86224051475c50ded08db001016cac8a5e0e7a53))
+* update insertBetLog ([7f868bb](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/7f868bb8cbf460d197de84b6bb1655b05482e09d))
+
 ## [1.0.2](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.1...v1.0.2) (2022-12-02)
 
 
