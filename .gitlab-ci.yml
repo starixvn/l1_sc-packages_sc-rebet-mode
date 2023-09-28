@@ -9,7 +9,7 @@ stages:
 include:
   - project: ci/core-cicd
     ref: publish-npm
-    file: ci/unit_test/jobs.yml
+    file: ci/unit_test/others/jobs.yml
   - project: ci/core-cicd
     ref: publish-npm
     file: ci/sonarqube/jobs.yml
