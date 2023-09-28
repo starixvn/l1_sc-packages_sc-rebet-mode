@@ -1,3 +1,13 @@
+# [2.0.0](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.3...v2.0.0) (2023-09-28)
+
+
+* feat!: upgrade sc-game-base ([b4f0fc6](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/b4f0fc6496cd362eb0479d9fadbb6e139945cae6))
+
+
+### BREAKING CHANGES
+
+* upgrade sc-game-base@4.1.0
+
 ## [1.0.3](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.2...v1.0.3) (2023-09-05)
 
 
