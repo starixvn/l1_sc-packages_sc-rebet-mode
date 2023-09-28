@@ -6,7 +6,7 @@ module.exports = async () => {
             "^.+\\.js?$": "babel-jest",
         },
         transformIgnorePatterns: [
-            "node_modules/(?!(jest-auto-fixture|sc-base-database|sc-common|sc-game-base|sc-base-apis|sc-api-client)/)",
+            "node_modules/(?!(jest-auto-fixture|sc-base-database|sc-common|sc-game-base|sc-base-apis|sc-api-client|axios)/)",
         ],
         testEnvironment: "node",
         testResultsProcessor: "jest-sonar-reporter",

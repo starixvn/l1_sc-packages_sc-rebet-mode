@@ -26,9 +26,7 @@
     "type": "module",
     "license": "ISC",
     "dependencies": {
-        "awilix": "^4.3.4",
-        "chance": "^1.1.7",
-        "sc-game-base": "3.2.5"
+        "sc-game-base": "4.1.0"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.12.11",
