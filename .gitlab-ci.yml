@@ -9,9 +9,6 @@ stages:
 include:
   - project: ci/core-cicd
     ref: publish-npm
-    file: "_shared/rules.yml"
-  - project: ci/core-cicd
-    ref: publish-npm
     file: "ci/_shared/rules.yml"
   - project: ci/core-cicd
     ref: publish-npm
