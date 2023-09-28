@@ -9,4 +9,10 @@ stages:
 include:
   - project: ci/core-cicd
     ref: publish-npm
-    file: luminet.gitlab-ci.yml
+    file: ci/unit_test/jobs.yml
+  - project: ci/core-cicd
+    ref: publish-npm
+    file: ci/sonarqube/jobs.yml
+  - project: ci/core-cicd
+    ref: publish-npm
+    file: cd/publish_npm/jobs.yml
