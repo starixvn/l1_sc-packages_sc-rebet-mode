@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: publish-npm
+    ref: main
     file: luminet.gitlab-ci.yml
