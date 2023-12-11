@@ -11,7 +11,7 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
         logService,
         betsRepository,
         betLogsRepository,
-        userInfosRepository,
+        gameManagementApiClientFactory,
         baseMetrics,
         rebetProcessor,
     }) {
@@ -23,7 +23,7 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
             logService,
             betsRepository,
             betLogsRepository,
-            userInfosRepository,
+            gameManagementApiClientFactory,
             baseMetrics,
         });
 
