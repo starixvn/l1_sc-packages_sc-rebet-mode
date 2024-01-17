@@ -1,3 +1,10 @@
+## [2.0.1](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v2.0.0...v2.0.1) (2024-01-17)
+
+
+### Bug Fixes
+
+* add gameManagementApiClientFactory ([53fe73b](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/53fe73bea2c0febace630419ace5dcad8113a250))
+
 # [2.0.0](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v1.0.3...v2.0.0) (2023-09-28)
 
 
