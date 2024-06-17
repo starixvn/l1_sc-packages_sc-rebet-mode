@@ -2,17 +2,7 @@ import ProcessBetQueue from "./process-bet-queue";
 
 export default class TableProcessBetQueue extends ProcessBetQueue {
     generatePlacingBetResult(player, balance, bet, rate) {
-        const { amount, freeBet, betChoice } = bet;
-        const { ownBets } = this.gameData.ingame[player.profile.name] || { ownBets: {} };
-
-        const result = {
-            ownBets,
-            endBet: amount,
-            betChoice,
-            freeBet,
-            user: { ...balance },
-            rebet: null,
-        };
+        const result = super.generatePlacingBetResult(player, balance, bet, rate);
 
         if (this.gameData.players[player.UID]) {
             this.gameData.players[player.UID].red = balance.red;

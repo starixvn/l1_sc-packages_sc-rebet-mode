@@ -30,25 +30,12 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
         this.rebetProcessor = rebetProcessor;
     }
 
-    handleFailedBet(player, notice, bet) {
-        const { betChoice } = bet;
-        this.decreaseBetTracks(player, bet);
-
-        if (notice.apiError) {
-            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, apiError: notice.apiError });
-        } else if (notice.kickedOut) {
-            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, kickedOut: notice.kickedOut });
-        } else {
-            this.placeBetPublisher.publishGameFailedBet(player.UID, { endBet: -1, betChoice, notice });
-        }
-    }
-
-    decreaseBetTracks(player, bet) {
+    decreaseBetTracks(playerName, bet) {
         if (bet.rebet) {
             const { lastBet } = bet;
-            Object.entries(lastBet).forEach(([betChoice, amount]) => super.decreaseBetTracks(player.profile.name, { betChoice, amount }));
+            Object.entries(lastBet).forEach(([betChoice, amount]) => super.decreaseBetTracks(playerName, { betChoice, amount }));
         } else {
-            super.decreaseBetTracks(player.profile.name, bet);
+            super.decreaseBetTracks(playerName, bet);
         }
     }
 
@@ -140,16 +127,9 @@ export default class ProcessBetQueue extends Core.Crons.ProcessBetQueue {
     }
 
     generatePlacingBetResult(player, balance, bet, rate) {
-        const { amount, freeBet, betChoice } = bet;
-        const { ownBets } = this.gameData.ingame[player.profile.name] || { ownBets: {} };
+        const result = super.generatePlacingBetResult(player, balance, bet, rate);
+        result.rebet = bet.lastBet;
 
-        return {
-            ownBets: ownBets,
-            endBet: amount,
-            betChoice,
-            freeBet,
-            user: { ...balance },
-            rebet: bet.lastBet,
-        };
+        return result;
     }
 }

@@ -3,6 +3,10 @@ import TableProcessBetQueue from "../../../src/crons/table-process-bet-queue";
 import { initGameData, mockPlayer } from "../test-data";
 
 describe("TableProcessBetQueue", () => {
+    const gameManagementApiClientFactory = {
+        instance: jest.fn(),
+    };
+
     const definition = new Table.TableGameDefinition({ name: "game name" });
     const player = mockPlayer();
     const gameData = initGameData(player, 10);
@@ -10,6 +14,7 @@ describe("TableProcessBetQueue", () => {
     const betQueue = new TableProcessBetQueue({
         definition,
         gameData,
+        gameManagementApiClientFactory,
     });
 
     describe("updateGameDataChips", () => {
