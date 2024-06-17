@@ -11,6 +11,7 @@ export default class TableProcessBetQueue extends ProcessBetQueue {
         if (bet.rebet) {
             result.rebet = this.updateRebetGameDataChips(player, bet, rate);
         } else {
+            const { betChoice, amount } = bet;
             result.ownChip = { betChoice, amount };
             this.updateGameDataChips(bet, rate);
         }
