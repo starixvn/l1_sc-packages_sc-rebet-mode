@@ -9214,10 +9214,10 @@ sc-common@1.8.1:
     mongoose-long "^0.3.0"
     numeral "^2.0.6"
 
-sc-game-base@5.2.0-beta.1:
-  version "5.2.0-beta.1"
-  resolved "https://npm.lumigame.com/sc-game-base/-/sc-game-base-5.2.0-beta.1.tgz#ab22ce890eb7c600f8034f731425a45b8e54f02f"
-  integrity sha512-ieKYfajTjZXxvezTowNhMG0apD67Yz5Mv8fF0Bh+ZfKZkGFhKk9Nh+bxKdb7f3e03g3OmZJs91sGiEqheEGTmg==
+sc-game-base@5.3.0:
+  version "5.3.0"
+  resolved "https://npm.lumigame.com/sc-game-base/-/sc-game-base-5.3.0.tgz#11b8712b500e6b1993a4f3555fbb965e0d4c5729"
+  integrity sha512-qOzsd3JkafODwppz2ca+cIZ6oaWOC+inv6TbP/a9Z5c3SSL+desgMZwsSwZjDdOmvot8CFPsG4009WWndzdi4w==
   dependencies:
     awilix "^8.0.0"
     axios "^1.0.0"
@@ -9241,7 +9241,7 @@ sc-game-base@5.2.0-beta.1:
     sc-game-management-client "^0.1.0"
     sc-instrument "1.1.1-beta.2"
     sc-instrument-helper "1.0.0"
-    sc-pf-client-seed "^1.0.1-beta.0"
+    sc-pf-client-seed "^1.0.5"
     socket.io "^4.5.4"
     socket.io-msgpack-parser "^3.0.1"
     socket.io-prom-metrics "^1.0.3"
@@ -9283,10 +9283,10 @@ sc-instrument@1.1.1-beta.2:
     opentelemetry-instrumentation-socket.io "0.34.0"
     socket.io "4.6.1"
 
-sc-pf-client-seed@^1.0.1-beta.0:
-  version "1.0.1"
-  resolved "https://npm.lumigame.com/sc-pf-client-seed/-/sc-pf-client-seed-1.0.1.tgz#93f80cc8a07e1ed7c29c7e145497bb828cb0a870"
-  integrity sha512-2yK+gxoA2CkDrsQZKILA29EWzPHAuUZC4eXtJcy5ni0j3Ks5TONKRUY9NIsRiOkCudLfuG/xD7XVmMNsxn/egA==
+sc-pf-client-seed@^1.0.5:
+  version "1.0.5"
+  resolved "https://npm.lumigame.com/sc-pf-client-seed/-/sc-pf-client-seed-1.0.5.tgz#8ce5fd5a5482d1cd9f803560bc3acc4e89e83d70"
+  integrity sha512-KRkuLgqs508IvsSCR381esnKgEK2vid0JwE4Vom9XpJBlNBSjov+6bITO8FlX8W5Hss2Xe1pX6wCvFJVrhZvvg==
   dependencies:
     chance "^1.1.11"
 
