@@ -1,3 +1,21 @@
+# [3.0.0](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v2.0.1...v3.0.0) (2024-08-08)
+
+
+### Bug Fixes
+
+* process bet queue ([f3b0543](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/f3b054314cef025a290377e1b9fe6b73ad3a1577))
+
+
+### Features
+
+* update sc-game-base-v5 ([1609d3e](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/1609d3ed70ba22b8cd5229abdda913348476fe39))
+* upgrade sc-game-base@5.3.0 ([375c831](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/commit/375c8314a29464362405c69b8d94f5cd32712780))
+
+
+### BREAKING CHANGES
+
+* sc-game-base v5
+
 ## [2.0.1](https://git3.nexdev.net/l1/sc-packages/sc-rebet-mode/compare/v2.0.0...v2.0.1) (2024-01-17)
 
 
